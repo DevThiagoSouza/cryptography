@@ -1,0 +1,16 @@
+FROM maven:3.8-amazoncorretto-11
+#Ok
+COPY pom.xml pom.xml
+RUN mvn dependency:go-offline
+COPY . .
+RUN mvn clean package
+
+FROM amazoncorretto:11.0.16
+COPY --from=0 /target/*.jar  /app.jar
+
+ENV TZ=America/Sao_Paulo
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+EXPOSE 8080
+CMD ["java", "-jar", "/app.jar"]
+
